@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Services\FirebaseService;
+
 use App\Services\CarListingService;
 
 use Illuminate\Http\Request;
@@ -20,9 +20,8 @@ class AuthenticationController extends Controller
     protected $firebaseService;
     protected $carListingService;
 
-    public function __construct(FirebaseService $firebaseService, CarListingService $carListingService)
+    public function __construct(CarListingService $carListingService)
     {
-        $this->firebaseService = $firebaseService;
         $this->carListingService = $carListingService;
     }
 
