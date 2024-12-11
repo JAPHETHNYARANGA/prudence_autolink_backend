@@ -6,6 +6,7 @@
 -- Generation Time: Dec 11, 2024 at 02:17 PM
 -- Server version: 5.7.43
 -- PHP Version: 8.1.27
+SET foreign_key_checks = 0;
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -3715,6 +3716,9 @@ ALTER TABLE `messages`
 ALTER TABLE `reviews`
   ADD CONSTRAINT `reviews_user_id_foreign` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE;
 COMMIT;
+
+SET foreign_key_checks = 1;
+
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
