@@ -147,8 +147,9 @@ class PaymentController extends Controller
      private function getAccessToken()
      {
          $url = 'https://sandbox.sasapay.app/api/v1/auth/token/?grant_type=client_credentials';
-         $clientId = 'U2593Eiaxog5BzFaySR5zufIWR4HyXqQt0PwxwWn'; // Replace with actual client ID
-         $clientSecret = 'u6OVeGlCvZYaqq8ykjJm08qwBPG11lTx4O3K8cW6pTd7Xgjek2NSVfzjuFmkyAo8iU9Y8NeJV8jme7BBcInsXBMfeGHUGxw38hGsJojbzCClDoswDDnCzovQi7hZMvY7'; // Replace with actual client secret
+        
+         $clientId = env('SASAPAY_CLIENT_ID');  // Retrieve client ID from .env file
+         $clientSecret = env('SASAPAY_CLIENT_SECRET'); 
  
          $headers = [
              'Authorization' => 'Basic ' . base64_encode($clientId . ':' . $clientSecret),
