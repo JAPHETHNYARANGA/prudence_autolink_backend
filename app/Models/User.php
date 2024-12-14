@@ -59,4 +59,10 @@ class User extends Authenticatable
      {
         return $this->hasMany(ModelsCarHire::class, 'user_id');
      }
+
+     // Relationship with Payment model
+    public function payments()
+    {
+        return $this->hasMany(Payment::class, 'user_id');  // This establishes the relationship
+    }
 }

@@ -28,6 +28,18 @@ class CarController extends Controller
 
     public function create(Request $request)
     {
+
+        // $paymentController = new PaymentController();
+        // $response = $paymentController->hasActiveSubscription();
+
+        // if ($response->getStatusCode() !== 200) {
+        //     return response()->json([
+        //         'message' => 'You must have an active subscription to create a car listing.',
+        //         'error' => 'No active subscription'
+        //     ], Response::HTTP_FORBIDDEN);
+        // }
+
+        
         try {
             // Get the authenticated user's ID
             $userId = Auth::id();
