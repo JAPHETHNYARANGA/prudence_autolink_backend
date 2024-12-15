@@ -17,7 +17,8 @@ return new class extends Migration
             $table->decimal('amount', 8, 2);
             $table->enum('status', ['pending', 'active', 'failed']);
             $table->timestamp('payment_date');
-            $table->timestamp('next_payment_date');
+            $table->timestamp('next_payment_date')->nullable();
+            $table->string('MerchantRequestID')->nullable(); // Add this line
             $table->timestamps();
         });
     }

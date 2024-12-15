@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Http\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Facades\Log;
 
 class PaymentController extends Controller
 {
@@ -29,7 +30,7 @@ class PaymentController extends Controller
             
             switch ($validated['subscription_type']) {
                 case 'monthly':
-                    $amount = 50;
+                    $amount = 5;
                     $nextPaymentDate = $nextPaymentDate->addMonth();
                     break;
                 case '3_months':
@@ -51,13 +52,14 @@ class PaymentController extends Controller
     
             // Check if the payment request is successful
             if ($response['status'] === true) {
-                // Store the payment record
+                // Store the payment record with payment_request_id
                 Payment::create([
                     'user_id' => $user->id,
                     'amount' => $amount,
                     'status' => 'pending',
                     'payment_date' => Carbon::now(),
                     'next_payment_date' => $nextPaymentDate,
+                    'MerchantRequestID' => $response['MerchantRequestID'], // Save the PaymentRequestID here
                 ]);
                 return response()->json(['message' => 'Subscription started, please complete the payment']);
             }
@@ -120,28 +122,48 @@ class PaymentController extends Controller
      }
  
      // Callback to handle payment confirmation
-     public function paymentCallback(Request $request)
-     {
-         $paymentRequestID = $request->input('PaymentRequestID');
-         $resultCode = $request->input('ResultCode');
-         $transactionAmount = $request->input('TransAmount');
- 
-         // Update the payment status based on the result code
-         $payment = Payment::where('payment_request_id', $paymentRequestID)->first();
- 
-         if ($resultCode == 0) {  // Successful payment
-             $payment->status = 'active';
-             $payment->next_payment_date = Carbon::now()->addMonth();
-             $payment->save();
- 
-             return response()->json(['message' => 'Payment successful, subscription active']);
-         } else {
-             $payment->status = 'failed';
-             $payment->save();
- 
-             return response()->json(['error' => 'Payment failed, please try again'], 400);
-         }
-     }
+    // Callback to handle payment confirmation
+    public function paymentCallback(Request $request)
+    {
+        // Log the entire incoming request to inspect the callback response
+        Log::info('Payment Callback Response:', $request->all());
+
+        $paymentRequestID = $request->input('MerchantRequestID');
+        $resultCode = $request->input('ResultCode');
+        $transactionAmount = $request->input('TransAmount');
+
+        // Find the payment record by PaymentRequestID
+        $payment = Payment::where('MerchantRequestID', $paymentRequestID)->first();
+
+        if (!$payment) {
+            return response()->json(['error' => 'Payment record not found'], 404);
+        }
+
+        // Update the payment status based on the result code
+        if ($resultCode == 0) {  // Successful payment
+            $payment->status = 'active';
+            $payment->save();
+
+            Log::info('Payment successful:', [
+                'paymentRequestID' => $paymentRequestID,
+                'amount' => $transactionAmount,
+                'status' => 'active',
+            ]);
+
+            return response()->json(['message' => 'Payment successful, subscription active']);
+        } else {
+            $payment->status = 'failed';
+            $payment->save();
+
+            Log::info('Payment failed:', [
+                'paymentRequestID' => $paymentRequestID,
+                'resultCode' => $resultCode,
+                'status' => 'failed',
+            ]);
+
+            return response()->json(['error' => 'Payment failed, please try again'], 400);
+        }
+    }
  
      // Get access token to make requests to SasaPay API
      private function getAccessToken()

@@ -14,7 +14,8 @@ class Payment extends Model
         'amount',
         'status',
         'payment_date',
-        'next_payment_date'
+        'next_payment_date',
+        'MerchantRequestID'
     ];
 
     public function user()
