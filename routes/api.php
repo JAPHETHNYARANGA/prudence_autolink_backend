@@ -23,6 +23,11 @@ Route::middleware(['throttle:60,1'])->group(function () {
     Route::post('forgot-password', [AuthenticationController::class, 'forgotPassword']);
     Route::post('reset-password', [AuthenticationController::class, 'resetPassword']);
 
+    //fetch all vehicles  
+    Route::get('car_listings', [CarController::class, 'index']);
+    //fetch individual vehicle
+    Route::get('car_listings/{id}', [CarController::class, 'show']);
+
     Route::middleware('auth:sanctum')->group(function () {
 
         //payment routes
@@ -44,9 +49,9 @@ Route::middleware(['throttle:60,1'])->group(function () {
         Route::post('create_car_listing', [CarController::class, 'create']);
         Route::post('/upload_image', [ImagesController::class, 'upload']);
 
-        Route::get('car_listings', [CarController::class, 'index']);
+        
         Route::get('user/user_car_listings', [CarController::class, 'getCarsByUserId']);
-        Route::get('car_listings/{id}', [CarController::class, 'show']);
+        
         Route::get('car_models', [ModelController::class, 'getByMakeId']);
         Route::get('car_makes', [MakeController::class, 'index']);
         Route::get('car_categories', [CategoryController::class, 'index']);
