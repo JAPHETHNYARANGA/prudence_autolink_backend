@@ -62,9 +62,9 @@
             <p>Hi {{ $name }},</p>
             <p>Thank you for creating an account with Prudence ShowRoom! We're excited to have you on board.</p>
             <p>To complete your registration and verify your email address, please click the button below:</p>
-            <a class="button" href="http://34.68.45.130/verify/{{ $token }}">Verify Your Email</a>
+            <a class="button" href="{{ url('verify/{{ $token }}') }}">Verify Your Email</a>
             <p>If the button above doesn't work, you can copy and paste the URL below into your browser:</p>
-            <p><code>http://34.68.45.130/verify/{{ $token }}</code></p>
+            <p><code>{{ url('verify/{{ $token }}') }}</code></p>
             <p>If you did not create an account with us, please ignore this email or contact our support team at <b>info@PrudenceShowRoom.com</b>.</p>
             <p>Thank you for choosing Prudence ShowRoom!</p>
             <p>Best regards,</p>
