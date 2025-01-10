@@ -22,11 +22,13 @@ Route::middleware(['throttle:60,1'])->group(function () {
     Route::post('login', [AuthenticationController::class, 'login']);
     Route::post('forgot-password', [AuthenticationController::class, 'forgotPassword']);
     Route::post('reset-password', [AuthenticationController::class, 'resetPassword']);
-
     //fetch all vehicles  
     Route::get('car_listings', [CarController::class, 'index']);
     //fetch individual vehicle
     Route::get('car_listings/{id}', [CarController::class, 'show']);
+
+    Route::get('car_models', [ModelController::class, 'getByMakeId']);
+    Route::get('car_makes', [MakeController::class, 'index']);
 
     Route::middleware('auth:sanctum')->group(function () {
 
@@ -47,13 +49,10 @@ Route::middleware(['throttle:60,1'])->group(function () {
         Route::post('create_car_make', [MakeController::class, 'create']);
         Route::post('create_car_model', [ModelController::class, 'create']);
         Route::post('create_car_listing', [CarController::class, 'create']);
-        Route::post('/upload_image', [ImagesController::class, 'upload']);
-
+        // Route::post('/upload_image', [ImagesController::class, 'upload']);
         
         Route::get('user/user_car_listings', [CarController::class, 'getCarsByUserId']);
         
-        Route::get('car_models', [ModelController::class, 'getByMakeId']);
-        Route::get('car_makes', [MakeController::class, 'index']);
         Route::get('car_categories', [CategoryController::class, 'index']);
         Route::put('cars/update/{id}', [CarController::class, 'update']);
         Route::post('/cars/delete/{id}', [CarController::class, 'destroy']);
@@ -67,10 +66,8 @@ Route::middleware(['throttle:60,1'])->group(function () {
 
         //Reviews           
         Route::apiResource('reviews', ReviewController::class);
-
         // Car Hires
         Route::apiResource('car_hires', CarHireController::class);
-
         Route::get('user_car_hire', [CarHireController::class, 'fetchUsersCarHireVehicles']);
 
     });

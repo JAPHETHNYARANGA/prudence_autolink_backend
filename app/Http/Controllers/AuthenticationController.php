@@ -145,9 +145,6 @@ class AuthenticationController extends Controller
                 ], 401);
             }
 
-            // If authenticated successfully, revoke all previous tokens
-            $user->tokens()->delete(); // This clears all previous tokens
-
             // Generate new token
             $token = $user->createToken('UserAuthentication')->plainTextToken;
             
@@ -337,7 +334,7 @@ class AuthenticationController extends Controller
             $user = $request->user();
 
             // Revoke the user's token
-            $user->tokens()->delete();
+            $user->tokens()->where('id', $request->user()->currentAccessToken()->id)->delete();
 
             return response()->json(['success' => true, 'message' => 'Logged out successfully.']);
         } catch (\Throwable $th) {
@@ -347,6 +344,7 @@ class AuthenticationController extends Controller
             ], 500);
         }
     }
+
 
     public function deleteUser(Request $request)
     {

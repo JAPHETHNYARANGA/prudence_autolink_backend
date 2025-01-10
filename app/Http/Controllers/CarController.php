@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\image;
 use App\Models\User;
 use App\Services\CarListingService;
 use Illuminate\Http\Request;
@@ -26,10 +27,10 @@ class CarController extends Controller
      * @return \Illuminate\Http\JsonResponse
      */
 
+
     public function create(Request $request)
     {
-
-        // $paymentController = new PaymentController();
+         // $paymentController = new PaymentController();
         // $response = $paymentController->hasActiveSubscription();
 
         // if ($response->getStatusCode() !== 200) {
@@ -39,7 +40,6 @@ class CarController extends Controller
         //     ], Response::HTTP_FORBIDDEN);
         // }
 
-        
         try {
             // Get the authenticated user's ID
             $userId = Auth::id();
@@ -47,14 +47,45 @@ class CarController extends Controller
             // Add user_id to the request data
             $data = array_merge($request->all(), ['user_id' => $userId]);
 
-            // Validate and create the car listing using the service
+            // Validate the incoming request data (including car details)
+            // $validatedData = $request->validate([
+            //     'user_id' =>$userId,
+            //     'make_id' => 'required|integer|exists:makes,id',
+            //     'model_id' => 'required|integer|exists:car_models,id',
+            //     'year' => 'required|integer|min:1900|max:' . date('Y'),
+            //     'transmission' => 'required|string|in:manual,automatic',
+            //     'price' => 'required|numeric|min:0',
+            //     'description' => 'nullable|string',
+            //     'category_id' => 'required|integer|exists:categories,id',
+            //     // 'images' => 'nullable|array',  // Add validation for images
+            //     // 'images.*' => 'file|mimes:jpg,jpeg,png,gif',  // Validate image files
+            // ]);
+
+            // Create the car listing
             $car = $this->carListingService->createCarListing($data);
+
+            // Check if there are images to upload
+            if ($request->hasFile('images')) {
+                foreach ($request->file('images') as $imageFile) {
+                    // Handle the image upload
+                    $filename = time() . '_' . $imageFile->getClientOriginalName();
+                    $imageFile->move(public_path('images'), $filename);
+
+                    // Save the image data to the database
+                    $image = new image([
+                        'car_id' => $car->id,
+                        'url' => $filename,
+                    ]);
+                    $image->save();
+                }
+            }
 
             // Return a successful response
             return response()->json([
-                'message' => 'Car listing created successfully',
+                'message' => 'Car listing and images uploaded successfully',
                 'car' => $car
             ], Response::HTTP_CREATED);
+            
         } catch (ValidationException $e) {
             // Handle validation exceptions
             return response()->json([
@@ -69,26 +100,36 @@ class CarController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
+
     /**
      * Fetch all car listings.
      *
      * @return \Illuminate\Http\JsonResponse
      */
 
-
     public function index(Request $request)
     {
         try {
+            // Retrieve pagination parameters
             $limit = (int) $request->input('limit', 15);
             $offset = (int) $request->input('offset', 0);
-            $makeId = $request->input('make_id'); // Get the make ID if provided
 
-            // Retrieve car listings with pagination
-            $cars = $this->carListingService->getCarsWithPagination($limit, $offset, $makeId);
+            // Build the filters array from the request
+            $filters = [
+                'makeId' => $request->input('make_id'),    // Car make ID
+                'modelId' => $request->input('model_id'),  // Car model ID
+                'minPrice' => $request->input('minPrice'), // Minimum price
+                'maxPrice' => $request->input('maxPrice'), // Maximum price
+                'year' => $request->input('year'),         // Year of manufacture
+            ];
+
+            // Pass the filters along with limit and offset to the service method
+            $cars = $this->carListingService->getCarsWithPagination($limit, $offset, $filters);
 
             return response()->json([
                 'cars' => $cars
             ], Response::HTTP_OK);
+
         } catch (\Exception $e) {
             return response()->json([
                 'message' => 'An error occurred',
@@ -96,7 +137,6 @@ class CarController extends Controller
             ], Response::HTTP_INTERNAL_SERVER_ERROR);
         }
     }
-
 
     public function show($id)
     {
