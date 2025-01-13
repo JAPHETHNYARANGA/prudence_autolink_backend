@@ -30,7 +30,8 @@ class CarMakeService
      */
     public function getAllCarMakes()
     {
-        return make::all(); // Retrieves all car makes from the database
+        // Order the car makes alphabetically by the 'name' column
+        return make::orderBy('name', 'asc')->get(); // Retrieves and sorts car makes by name in ascending order
     }
 
  

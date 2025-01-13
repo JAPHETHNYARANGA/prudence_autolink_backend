@@ -39,7 +39,7 @@ class CarModelService
         }
 
         // Fetch car models associated with the given make_id
-        return carModel::where('make_id', $makeId)->get();
+        return carModel::where('make_id', $makeId)->orderBy('name', 'asc')->get();
     }
 
  
